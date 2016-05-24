@@ -31,6 +31,8 @@ BUILDERS = {
     'source-tarball':        'source_tarball',
     'msvc2013-win32':        'msvc',
     'msvc2013-win64':        'msvc',
+    'msvc2015-win32':        'msvc',
+    'msvc2015-win64':        'msvc',
     'setup-mingw-w64':       'setup_mingw_w64',
     'setup-schroot-generic': 'setup_schroot',
     'setup-schroot-centos7': 'setup_schroot',
@@ -842,11 +844,14 @@ def build_source_tarball(config, basedir):
 # --------------------------------------------------------------- MSVC (2013 only)
 
 MSVC_LOCATION = {
-    'msvc2013': ('VS120COMNTOOLS', '12.0')
+    'msvc2013': ('VS120COMNTOOLS', '12.0'),
+    'msvc2015': ('VS140COMNTOOLS', '14.0')
 }
 MSVC_RUNTIME = {
     'msvc2013-win32': ('df7f0a73bfa077e483e51bfb97f5e2eceedfb6a3', 'http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x86.exe'),
-    'msvc2013-win64': ('8bf41ba9eef02d30635a10433817dbb6886da5a2', 'http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe')
+    'msvc2013-win64': ('8bf41ba9eef02d30635a10433817dbb6886da5a2', 'http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe'),
+    'msvc2015-win32': ('7a672ae60fb7e029597c6a183cb7936eaff31a98', 'https://download.microsoft.com/download/0/5/0/0504B211-6090-48B1-8DEE-3FF879C29968/vc_redist.x86.exe'),
+    'msvc2015-win64': ('bb64084762abd4a06b2fddd16f0092860bc3043f', 'https://download.microsoft.com/download/0/5/0/0504B211-6090-48B1-8DEE-3FF879C29968/vc_redist.x64.exe')
 }
 
 def check_msvc(config):
