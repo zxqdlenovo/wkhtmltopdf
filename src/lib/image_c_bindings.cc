@@ -104,7 +104,8 @@ CAPI(wkhtmltoimage_global_settings *) wkhtmltoimage_create_global_settings() {
 }
 
 CAPI(int) wkhtmltoimage_set_global_setting(wkhtmltoimage_global_settings * settings, const char * name, const char * value) {
-	return reinterpret_cast<settings::ImageGlobal *>(settings)->set(name, QString::fromUtf8(value));
+	//return reinterpret_cast<settings::ImageGlobal *>(settings)->set(name, QString::fromUtf8(value));
+	return reinterpret_cast<settings::ImageGlobal *>(settings)->set(name, QString::fromLocal8Bit(value));
 }
 
 CAPI(int) wkhtmltoimage_get_global_setting(wkhtmltoimage_global_settings * settings, const char * name, char * value, int vs) {
@@ -165,11 +166,27 @@ CAPI(int) wkhtmltoimage_phase_count(wkhtmltoimage_converter * converter) {
 }
 
 CAPI(const char *) wkhtmltoimage_phase_description(wkhtmltoimage_converter * converter, int phase) {
-	return reinterpret_cast<MyImageConverter *>(converter)->converter.phaseDescription(phase).toUtf8().constData();
+	MyImageConverter* conv = reinterpret_cast<MyImageConverter *>(converter);
+	QString pd = conv->converter.phaseDescription(phase);
+	if (!conv->utf8StringCache.contains(pd))
+	{
+		return conv->utf8StringCache.insert(pd, pd.toUtf8()).value().constData();
+	}
+	else
+		return conv->utf8StringCache[pd].constData();
+	//return reinterpret_cast<MyImageConverter *>(converter)->converter.phaseDescription(phase).toUtf8().constData();
 }
 
 CAPI(const char *) wkhtmltoimage_progress_string(wkhtmltoimage_converter * converter) {
-	return reinterpret_cast<MyImageConverter *>(converter)->converter.progressString().toUtf8().constData();
+	MyImageConverter* conv = reinterpret_cast<MyImageConverter *>(converter);
+	QString pd = conv->converter.progressString();
+	if (!conv->utf8StringCache.contains(pd))
+	{
+		return conv->utf8StringCache.insert(pd, pd.toUtf8()).value().constData();
+	}
+	else
+		return conv->utf8StringCache[pd].constData();
+	//return reinterpret_cast<MyImageConverter *>(converter)->converter.progressString().toUtf8().constData();
 }
 
 CAPI(int) wkhtmltoimage_http_error_code(wkhtmltoimage_converter * converter) {

@@ -24,6 +24,7 @@
 #include "image.h"
 #include "imageconverter.hh"
 #include <QObject>
+#include <QHash>
 
 #include "dllbegin.inc"
 
@@ -39,6 +40,7 @@ public:
 	wkhtmltopdf::ImageConverter converter;
 
 	wkhtmltopdf::settings::ImageGlobal * globalSettings;
+	QHash<QString, QByteArray> utf8StringCache;
 
 	MyImageConverter(wkhtmltopdf::settings::ImageGlobal * gs, const QString * data);
 	~MyImageConverter();

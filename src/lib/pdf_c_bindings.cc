@@ -361,7 +361,8 @@ CAPI(void) wkhtmltopdf_destroy_global_settings(wkhtmltopdf_global_settings * obj
  * \returns 1 if the setting was updated successfully and 0 otherwise.
  */
 CAPI(int) wkhtmltopdf_set_global_setting(wkhtmltopdf_global_settings * settings, const char * name, const char * value) {
-	return reinterpret_cast<settings::PdfGlobal *>(settings)->set(name, QString::fromUtf8(value));
+	//return reinterpret_cast<settings::PdfGlobal *>(settings)->set(name, QString::fromUtf8(tmpBuff));
+	return reinterpret_cast<settings::PdfGlobal *>(settings)->set(name, QString::fromLocal8Bit(value));
 }
 
 /**
@@ -418,7 +419,8 @@ CAPI(void) wkhtmltopdf_destroy_object_settings(wkhtmltopdf_object_settings * obj
  * \returns 1 if the setting was updated successfully and 0 otherwise.
  */
 CAPI(int) wkhtmltopdf_set_object_setting(wkhtmltopdf_object_settings * settings, const char * name, const char * value) {
-	return reinterpret_cast<settings::PdfObject *>(settings)->set(name, QString::fromUtf8(value));
+	//return reinterpret_cast<settings::PdfObject *>(settings)->set(name, QString::fromUtf8(value));
+	return reinterpret_cast<settings::PdfObject *>(settings)->set(name, QString::fromLocal8Bit(value));
 }
 
 /**

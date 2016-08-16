@@ -65,7 +65,8 @@ int main() {
 
 	/* We want to convert to convert the qstring documentation page */
 	wkhtmltoimage_set_global_setting(gs, "in", "http://www.google.com/");
-	wkhtmltoimage_set_global_setting(gs, "fmt", "jpeg");
+	//wkhtmltoimage_set_global_setting(gs, "fmt", "jpeg");
+	wkhtmltoimage_set_global_setting(gs, "out", "test.jpeg");
 
 	/* Create the actual converter object used to convert the pages */
 	c = wkhtmltoimage_create_converter(gs, NULL);
