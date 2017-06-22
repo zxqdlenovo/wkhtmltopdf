@@ -1,14 +1,34 @@
-v0.12.4 (unreleased)
+v0.12.5 (unreleased)
 --------------------
-* update OpenSSL to 1.0.2h
+* fixed build without patched Qt and integrate with Travis CI and AppVeyor
+* **#1524**: **[qt]** partial fix for overlapping text when repeating headers/footers in table (qt#29)
+* **#1914**: **[qt]** rotated elements not rendered on thead on second page and beyond
+* **#1870**: fixed sending of duplicate cookies (#3257)
+* **#3206**: added support for SSL client certificates
+* **#3241**: fix for DPI regression on OS X (#3386)
+* **#3363**: added error message for network errors related to non-media files
+* **#3364**: new option `verbosity` to allow different log levels in both CLI and API
+* switch to self-hosted website and downloads as gna.org is shutting down (#3390)
+* minor documentation updates and fixing compiler warnings
+* update OpenSSL to 1.0.2k, zlib to 1.2.11, libpng to 1.6.28 and xz to 5.2.3
+
+v0.12.4 (2016-11-22)
+--------------------
+* add support for building with VS2015
+* update OpenSSL to 1.0.2j and libpng to 1.6.26
 * **[qt]** change screen size in headless mode to a more sane value (1366x768)
 * **[qt]** allow screen size in headless mode to be overriden via environment variables
 * **[qt]** fix compilation failure on OS X 10.11 due to usage of deprecated APIs
+* **#1768**: allow using long argument list (without hardcoded limits)
 * **#2004**: **[qt]** fix rendering of form fields in PDF output
+* **#2353**: **[qt]** context.setLineDash doesn't work in Canvas
 * **#2416**: make background transparent by default for headers/footers
+* **#2463**: **[qt]** standardize rendering DPI to 96
 * **#2673**: fail immediately in the build script if the Qt source is not available
+* **#2684**: **[qt]** fix crash in WebKit (RenderBlock::removeFloatingObjectsBelow)
 * **#2885**: enforce UTF-8 encoding for input strings in the API
 * **#2887**: improve docs to make examples of header/footer variables more explicit
+* **#3077**: use correct install path for man pages
 
 v0.12.3 (2016-01-20)
 --------------------

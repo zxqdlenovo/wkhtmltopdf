@@ -47,7 +47,7 @@ void PdfCommandLineParser::outputSynopsis(Outputter * o) const {
 	o->beginSection("Document objects");
 	o->beginParagraph();
 	o->text("wkhtmltopdf is able to put several objects into the output file, an object is either "
-			"a single webpage, a cover webpage or a table of content.  The objects are put into "
+			"a single webpage, a cover webpage or a table of contents.  The objects are put into "
 			"the output document in the order they are specified on the command line, options can "
 			"be specified on a per object basis or in the global options area. Options from the ");
 	o->sectionLink("Global Options");
@@ -66,18 +66,18 @@ void PdfCommandLineParser::outputSynopsis(Outputter * o) const {
 	o->endParagraph();
 
 	o->paragraph("A cover objects puts the content of a single webpage into the output document, "
-				 "the page does not appear in the table of content, and does not have headers and footers.");
+				 "the page does not appear in the table of contents, and does not have headers and footers.");
 	o->verbatim("cover <input url/file name> [PAGE OPTION]...");
 	o->paragraph("All options that can be specified for a page object can also be specified for a cover.");
 
-	o->paragraph("A table of content object inserts a table of content into the output document.");
+	o->paragraph("A table of contents object inserts a table of contents into the output document.");
 	o->verbatim("toc [TOC OPTION]...");
 	o->beginParagraph();
 	o->text("All options that can be specified for a page object can also be specified for a toc, "
 			"further more the options from the ");
 	o->sectionLink("TOC Options");
-	o->text(" section can also be applied. The table of content is generated via XSLT which means "
-			"that it can be styled to look however you want it to look. To get an aide of how to "
+	o->text(" section can also be applied. The table of contents is generated via XSLT which means "
+			"that it can be styled to look however you want it to look. To get an idea of how to "
 			"do this you can dump the default xslt document by supplying the --dump-default-toc-xsl, and the outline it works on by supplying --dump-outline, see the ");
 	o->sectionLink("Outline Options");
 	o->text(" section.");
@@ -187,6 +187,7 @@ void PdfCommandLineParser::outputHeaderFooterDoc(Outputter * o) const {
 	o->paragraph("Headers and footers can also be supplied with HTML documents. As an example one "
 				 "could specify --header-html header.html, and use the following content in header.html:");
 	o->verbatim(
+"<!DOCTYPE html>\n"
 "<html><head><script>\n"
 "function subst() {\n"
 "    var vars = {};\n"
@@ -225,11 +226,11 @@ void PdfCommandLineParser::outputHeaderFooterDoc(Outputter * o) const {
 }
 
 void PdfCommandLineParser::outputTableOfContentDoc(Outputter * o) const {
-	o->beginSection("Table Of Content");
-	o->paragraph("A table of content can be added to the document by adding a toc object "
+	o->beginSection("Table Of Contents");
+	o->paragraph("A table of contents can be added to the document by adding a toc object "
 				 "to the command line. For example:");
 	o->verbatim("wkhtmltopdf toc http://qt-project.org/doc/qt-4.8/qstring.html qstring.pdf\n");
-	o->paragraph("The table of content is generated based on the H tags in the input "
+	o->paragraph("The table of contents is generated based on the H tags in the input "
 				 "documents. First a XML document is generated, then it is converted to "
 				 "HTML using XSLT.");
 	o->paragraph("The generated XML document can be viewed by dumping it to a file using "
@@ -272,7 +273,7 @@ void PdfCommandLineParser::outputOutlineDoc(Outputter * o) const {
 		"book marks, this can be enabled by specifying the --outline switch. "
 		"The outlines are generated based on the <h?> tags, for a in-depth "
 		"description of how this is done see the ");
-	o->sectionLink("Table Of Content");
+	o->sectionLink("Table Of Contents");
 	o->text(" section. ");
 	o->endParagraph();
 	o->paragraph(
@@ -313,7 +314,7 @@ void PdfCommandLineParser::outputDocStart(Outputter * o) const {
 void PdfCommandLineParser::outputArgsFromStdin(Outputter * o) const {
 	o->beginSection("Reading arguments from stdin");
 	o->paragraph("If you need to convert a lot of pages in a batch, and you feel that wkhtmltopdf "
-				 "is a bit to slow to start up, then you should try --read-args-from-stdin,");
+				 "is a bit too slow to start up, then you should try --read-args-from-stdin,");
 	o->paragraph("When --read-args-from-stdin each line of input sent to wkhtmltopdf on stdin "
 				 "will act as a separate invocation of wkhtmltopdf, with the arguments specified "
 				 "on the given line combined with the arguments given to wkhtmltopdf");
@@ -373,7 +374,7 @@ void PdfCommandLineParser::outputExamples(Outputter * o) const {
 	o->verbatim("wkhtmltopdf my.html my.pdf\n");
 	o->paragraph("Produce the eler2.pdf sample file:");
 	o->verbatim("wkhtmltopdf -H  http://geekz.co.uk/lovesraymond/archive/eler-highlights-2008 eler2.pdf\n");
-	o->paragraph("Printing a book with a table of content:");
+	o->paragraph("Printing a book with a table of contents:");
 	o->verbatim("wkhtmltopdf -H cover cover.html toc chapter1.html chapter2.html chapter3.html book.pdf\n");
 	o->endSection();
 }

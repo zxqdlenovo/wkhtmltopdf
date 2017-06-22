@@ -26,6 +26,13 @@
 #include <QNetworkDiskCache>
 #include <QTimer>
 #include <QUuid>
+#include <QList>
+#include <QByteArray>
+#if (QT_VERSION >= 0x050000 && !defined QT_NO_SSL) || !defined QT_NO_OPENSSL
+#include <QSslCertificate>
+#include <QSslKey>
+#include <QSslConfiguration>
+#endif
 #if QT_VERSION >= 0x050000
 #include <QUrlQuery>
 #endif
@@ -104,6 +111,32 @@ QNetworkReply * MyNetworkAccessManager::createRequest(Operation op, const QNetwo
 		foreach (const HT & j, settings.customHeaders)
 			r3.setRawHeader(j.first.toLatin1(), j.second.toLatin1());
 	}
+
+	#if (QT_VERSION >= 0x050000 && !defined QT_NO_SSL) || !defined QT_NO_OPENSSL
+	if(!settings.clientSslKeyPath.isEmpty() && !settings.clientSslKeyPassword.isEmpty()
+			&& !settings.clientSslCrtPath.isEmpty()){
+		QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+
+		QFile keyFile(settings.clientSslKeyPath);
+		if(keyFile.open(QFile::ReadOnly)){
+			QSslKey key(&keyFile, QSsl::Rsa, QSsl::Pem, QSsl::PrivateKey, settings.clientSslKeyPassword.toUtf8());
+			sslConfig.setPrivateKey(key);
+			keyFile.close();
+			
+			QList<QSslCertificate> chainCerts =
+				QSslCertificate::fromPath(settings.clientSslCrtPath.toLatin1(),  QSsl::Pem, QRegExp::FixedString);
+			QList<QSslCertificate> cas =  sslConfig.caCertificates();
+			cas.append(chainCerts);
+			if(!chainCerts.isEmpty()){
+				sslConfig.setLocalCertificate(chainCerts.first());
+				sslConfig.setCaCertificates(cas);
+
+				r3.setSslConfiguration(sslConfig);
+			}
+		}
+	}
+	#endif
+
 	return QNetworkAccessManager::createRequest(op, r3, outgoingData);
 }
 
@@ -187,6 +220,9 @@ ResourceObject::ResourceObject(MultiPageLoaderPrivate & mpl, const QUrl & u, con
 	connect(&networkAccessManager, SIGNAL(warning(const QString &)),
 			this, SLOT(warning(const QString &)));
 
+	connect(&networkAccessManager, SIGNAL(error(const QString &)),
+			this, SLOT(error(const QString &)));
+
 	networkAccessManager.setCookieJar(multiPageLoader.cookieJar);
 
 	//If we must use a proxy, create a host of objects
@@ -213,7 +249,11 @@ ResourceObject::ResourceObject(MultiPageLoaderPrivate & mpl, const QUrl & u, con
 	}
 
 	webPage.setNetworkAccessManager(&networkAccessManager);
-	webPage.mainFrame()->setZoomFactor(settings.zoomFactor);
+#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
+	double devicePixelRatio = multiPageLoader.dpi / 96.; // The used version of WebKit always renders at 96 DPI when no zoom is applied. It does not fully support a device pixel ratio != 1 natively.
+	webPage.mainFrame()->setZoomFactor(devicePixelRatio * settings.zoomFactor); // Zoom in the page to achieve a higher DPI.
+	webPage.setDevicePixelRatio(devicePixelRatio); // Fix CSS media queries (does not affect anything else).
+#endif
 }
 
 /*!
@@ -366,6 +406,8 @@ void ResourceObject::amfinished(QNetworkReply * reply) {
 			//      no HTTP access at all, so we want network errors to be reported
 			//      with a higher priority than HTTP ones.
 			//      See: http://doc-snapshot.qt-project.org/4.8/qnetworkreply.html#NetworkError-enum
+			error(QString("Failed to load %1, with network status code %2 and http status code %3")
+				.arg(reply->url().toString()).arg(networkStatus).arg(httpStatus));
 			httpErrorCode = networkStatus > 0 ? (networkStatus + 1000) : httpStatus;
 			return;
 		}
@@ -448,6 +490,7 @@ void ResourceObject::load() {
 	}
 
 
+	multiPageLoader.cookieJar->clearExtraCookies();
 	typedef QPair<QString, QString> SSP;
  	foreach (const SSP & pair, settings.cookies)
 		multiPageLoader.cookieJar->useCookie(url, pair.first, pair.second);
@@ -464,6 +507,10 @@ void ResourceObject::load() {
 			r.setHeader(QNetworkRequest::ContentTypeHeader, QString("multipart/form-data, boundary=")+boundary);
 		webPage.mainFrame()->load(r, QNetworkAccessManager::PostOperation, postData);
 	}
+}
+
+void MyCookieJar::clearExtraCookies() {
+	extraCookies.clear();	
 }
 
 void MyCookieJar::useCookie(const QUrl &, const QString & name, const QString & value) {
@@ -525,8 +572,8 @@ bool MultiPageLoader::copyFile(QFile & src, QFile & dst) {
 	return true;
 }
 
-MultiPageLoaderPrivate::MultiPageLoaderPrivate(const settings::LoadGlobal & s, MultiPageLoader & o):
-	outer(o), settings(s) {
+MultiPageLoaderPrivate::MultiPageLoaderPrivate(const settings::LoadGlobal & s, int dpi_, MultiPageLoader & o):
+	outer(o), settings(s), dpi(dpi_) {
 
 	cookieJar = new MyCookieJar();
 
@@ -588,8 +635,8 @@ void MultiPageLoaderPrivate::fail() {
   \brief Construct a multipage loader object, load settings read from the supplied settings
   \param s The settings to be used while loading pages
 */
-MultiPageLoader::MultiPageLoader(settings::LoadGlobal & s, bool mainLoader):
-	d(new MultiPageLoaderPrivate(s, *this)) {
+MultiPageLoader::MultiPageLoader(settings::LoadGlobal & s, int dpi, bool mainLoader):
+	d(new MultiPageLoaderPrivate(s, dpi, *this)) {
 	d->isMainLoader = mainLoader;
 }
 

@@ -107,7 +107,8 @@ template<>
 struct DLL_LOCAL ReflectImpl<PdfGlobal>: public ReflectClass {
 	ReflectImpl(PdfGlobal & c) {
 		WKHTMLTOPDF_REFLECT(size);
-		WKHTMLTOPDF_REFLECT(quiet);
+		ReflectClass::add("quiet", new QuietArgBackwardsCompatReflect(c.logLevel));	// Fake the "quiet" argument
+		WKHTMLTOPDF_REFLECT(logLevel);
 		WKHTMLTOPDF_REFLECT(useGraphics);
 		WKHTMLTOPDF_REFLECT(resolveRelativeLinks);
 		WKHTMLTOPDF_REFLECT(orientation);
@@ -118,6 +119,7 @@ struct DLL_LOCAL ReflectImpl<PdfGlobal>: public ReflectClass {
 		WKHTMLTOPDF_REFLECT(copies);
 		WKHTMLTOPDF_REFLECT(collate);
 		WKHTMLTOPDF_REFLECT(outline);
+		WKHTMLTOPDF_REFLECT(outlineDepth);
 		WKHTMLTOPDF_REFLECT(dumpOutline);
 		WKHTMLTOPDF_REFLECT(out);
 		WKHTMLTOPDF_REFLECT(documentTitle);
@@ -126,6 +128,7 @@ struct DLL_LOCAL ReflectImpl<PdfGlobal>: public ReflectClass {
 		WKHTMLTOPDF_REFLECT(imageDPI);
 		WKHTMLTOPDF_REFLECT(imageQuality);
 		WKHTMLTOPDF_REFLECT(load);
+		WKHTMLTOPDF_REFLECT(viewportSize);
 	}
 };
 
@@ -305,7 +308,8 @@ QString unitRealToStr(const UnitReal & ur, bool * ok) {
 	case QPrinter::Point: c = "pt"; break;
 	case QPrinter::Millimeter: c = "mm"; break;
 	default:
-		if (ok) *ok=false; break;
+		if (ok) *ok=false;
+		return "";
 	}
 	return QString("%1%2").arg(ur.first).arg(c);
 }
@@ -366,13 +370,13 @@ Margin::Margin():
 	left(UnitReal(10,QPrinter::Millimeter)) {}
 
 PdfGlobal::PdfGlobal():
-	quiet(false),
+	logLevel(Info),
 	useGraphics(false),
 	resolveRelativeLinks(true),
 	orientation(QPrinter::Portrait),
 	colorMode(QPrinter::Color),
 	resolution(QPrinter::HighResolution),
-	dpi(-1),
+	dpi(96),
 	pageOffset(0),
 	copies(1),
 	collate(true),

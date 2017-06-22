@@ -76,10 +76,10 @@ bool DLL_LOCAL looksLikeHtmlAndNotAUrl(QString str) {
 }
 
 PdfConverterPrivate::PdfConverterPrivate(PdfGlobal & s, PdfConverter & o) :
-	settings(s), pageLoader(s.load, true),
+	settings(s), pageLoader(s.load, settings.dpi, true),
 	out(o), printer(0), painter(0)
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-    , webPrinter(0), measuringHFLoader(s.load), hfLoader(s.load), tocLoader1(s.load), tocLoader2(s.load)
+	, webPrinter(0), measuringHFLoader(s.load, settings.dpi), hfLoader(s.load, settings.dpi), tocLoader1(s.load, settings.dpi), tocLoader2(s.load, settings.dpi)
 	, tocLoader(&tocLoader1), tocLoaderOld(&tocLoader2)
     , outline(0), currentHeader(0), currentFooter(0)
 #endif
@@ -265,11 +265,11 @@ qreal PdfConverterPrivate::calculateHeaderHeight(PageObject & object, QWebPage &
 
 QPrinter * PdfConverterPrivate::createPrinter(const QString & tempFile) {
     QPrinter * printer = new QPrinter(settings.resolution);
-    if (settings.dpi != -1) printer->setResolution(settings.dpi);
     //Tell the printer object to print the file <out>
 
     printer->setOutputFileName(tempFile);
     printer->setOutputFormat(QPrinter::PdfFormat);
+    printer->setResolution(settings.dpi);
 
     if ((settings.size.height.first != -1) && (settings.size.width.first != -1)) {
         printer->setPaperSize(QSizeF(settings.size.width.first,settings.size.height.first + 100), settings.size.height.second);
@@ -344,11 +344,11 @@ void PdfConverterPrivate::pagesLoaded(bool ok) {
 	  lout = tempOut.create(".pdf");
 
 	printer = new QPrinter(settings.resolution);
-	if (settings.dpi != -1) printer->setResolution(settings.dpi);
 	//Tell the printer object to print the file <out>
 
 	printer->setOutputFileName(lout);
 	printer->setOutputFormat(QPrinter::PdfFormat);
+	printer->setResolution(settings.dpi);
 
 	//We currently only support margins with the same unit
 	if (settings.margin.left.second != settings.margin.right.second ||

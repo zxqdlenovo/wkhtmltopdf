@@ -58,6 +58,7 @@ public:
 	QNetworkReply * createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
 signals:
 	void warning(const QString & text);
+	void error(const QString & text);
 };
 
 class DLL_LOCAL MultiPageLoaderPrivate;
@@ -112,6 +113,7 @@ class DLL_LOCAL MyCookieJar: public QNetworkCookieJar {
 private:
 	QList<QNetworkCookie> extraCookies;
 public:
+	void clearExtraCookies();
 	void useCookie(const QUrl & url, const QString & name, const QString & value);
 	QList<QNetworkCookie> cookiesForUrl(const QUrl & url) const;
 	void loadFromFile(const QString & path);
@@ -135,8 +137,9 @@ public:
 	bool hasError;
 	bool finishedEmitted;
 	TempFile tempIn;
+	int dpi;
 
-	MultiPageLoaderPrivate(const settings::LoadGlobal & settings, MultiPageLoader & o);
+	MultiPageLoaderPrivate(const settings::LoadGlobal & settings, int dpi, MultiPageLoader & o);
 	~MultiPageLoaderPrivate();
 	LoaderObject * addResource(const QUrl & url, const settings::LoadPage & settings);
 	void load();
